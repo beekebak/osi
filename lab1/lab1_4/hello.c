@@ -14,6 +14,10 @@ int main(){
     return 1;
   }
   hello();
-  dlclose(handle);
+  int closed = dlclose(handle);
+  if(closed != 0){
+    fprintf(stderr, "dlclose error %d\n", closed);
+    return 1;
+  }
   return 0;
 }
