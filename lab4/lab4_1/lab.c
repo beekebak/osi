@@ -29,7 +29,7 @@ void LocalInitValFunc(){
 void BuffFunc(){
   char* buf = malloc(100 * sizeof(char));
   if(buf == NULL){
-    perror(strerror(errno));
+    perror("error");
     exit(1);
   }
   strcpy(buf, "hello world");
@@ -39,7 +39,7 @@ void BuffFunc(){
 
   char* buf2 = malloc(100 * sizeof(char));
   if(buf2 == NULL){
-    perror(strerror(errno));
+    perror("error");
     exit(1);
   }
   strcpy(buf, "howdy partner");
@@ -58,7 +58,7 @@ void PrintEnv(){
   }
   printf(" Env %s\n", res);
   if((setenv("OSI_VAR", "changed", 1)) == -1){
-    perror(strerror(errno));
+    perror("error");
     exit(1);
   }
   res = getenv("OSI_VAR");

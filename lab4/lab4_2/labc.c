@@ -18,12 +18,12 @@ void StackArrayFunc(){
 
 void HeapAlloc(){
   char* arr_of_allocs[100];
-  if(arr_of_allocs == NULL) perror(strerror(errno));
+  if(arr_of_allocs == NULL) perror("error");
   int i = 0;
   for(i; i < 100; i++){
     arr_of_allocs[i] = malloc(4096);
     if(arr_of_allocs[i] == NULL){
-      perror(strerror(errno));
+      perror("error");
       i--;
       break;
     }
@@ -40,24 +40,24 @@ void FuncWithMMAP(){
   void* block = mmap(NULL, blocksize, PROT_READ | PROT_WRITE,
                      MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
   if(block == MAP_FAILED){
-    perror(strerror(errno));
+    perror("error");
     exit(1);
   }
   if(mprotect(block, blocksize, PROT_NONE));
   //int a = *(int*)block;
   //*(int*)block = 1;
   if (munmap(block+pagesize*4, pagesize*2) == -1) {
-    perror(strerror(errno));
+    perror("error");
   }
   sleep(5);
   if (munmap(block+pagesize*6, pagesize*4) == -1) {
-    perror(strerror(errno));
+    perror("error");
   }
   if (munmap(block, pagesize*4) == -1) {
-    perror(strerror(errno));
+    perror("error");
   }
   //if (munmap(block, pagesize*10) == -1) {
-  //  perror(strerror(errno));
+  //  perror("error");
   //}
 }
 
