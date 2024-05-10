@@ -16,7 +16,7 @@ void PrintAndExit(char* error){
 }
 
 void PrintErrnoAndExit(){
-  PrintAndExit(strerror(errno));
+  PrintAndExit("error");
 }
 
 char* GetReverseString(char* str){
