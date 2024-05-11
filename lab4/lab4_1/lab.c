@@ -21,9 +21,10 @@ void Func(){
              &local_init_var, &static_local_init_var, &const_local_init_var);
 }
 
-void LocalInitValFunc(){
+int* LocalInitValFunc(){
   int local_init_val_again = 10;
   printf(" liva %p\n", &local_init_val_again);
+  return &local_init_val_again;
 }
 
 void BuffFunc(){

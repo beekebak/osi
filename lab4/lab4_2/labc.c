@@ -73,7 +73,7 @@ int main(int argc, char** argv){
   printf("%d\n", getpid());
   sleep(7);
   //StackArrayFunc();
-  //HeapAlloc();
-  FuncWithMMAP();
+  HeapAlloc();
+  //FuncWithMMAP();
   return 0;
 }
