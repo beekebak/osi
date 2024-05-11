@@ -12,8 +12,8 @@ int main(){
   char file_containment[4096];
   fread(file_containment, 4096, 4096, f);
   printf("%s", file_containment);
-  int uid = getuid();
-  int euid = geteuid();
+  gid_t uid = getuid();
+  gid_t euid = geteuid();
   printf("%d\n", uid);
   printf("%d\n", euid);
 }
