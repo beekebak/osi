@@ -43,9 +43,11 @@ void FuncWithMMAP(){
     perror("error");
     exit(1);
   }
-  if(mprotect(block, blocksize, PROT_NONE));
-  //int a = *(int*)block;
-  //*(int*)block = 1;
+  sleep(10);
+  /*if(mprotect(block, blocksize, PROT_NONE));
+  sleep(4);
+  int a = *(int*)block;
+  *(int*)block = 1;*/
   if (munmap(block+pagesize*4, pagesize*2) == -1) {
     perror("error");
   }
@@ -53,6 +55,7 @@ void FuncWithMMAP(){
   if (munmap(block+pagesize*6, pagesize*4) == -1) {
     perror("error");
   }
+  sleep(5);
   if (munmap(block, pagesize*4) == -1) {
     perror("error");
   }
@@ -73,7 +76,7 @@ int main(int argc, char** argv){
   printf("%d\n", getpid());
   sleep(7);
   //StackArrayFunc();
-  HeapAlloc();
-  //FuncWithMMAP();
+  //HeapAlloc();
+  FuncWithMMAP();
   return 0;
 }
