@@ -32,15 +32,13 @@ void ShowDirectory(char* path){
   DIR* d;
   struct dirent* file;
   d = opendir(path);
-  if (d) {
-    while ((file = readdir(d)) != NULL) {
-      printf("%s\n", file->d_name);
-    }
-    closedir(d);
-  }
-  else {
+  if (!d) {
     PrintErrnoAndExit();
   }
+  while ((file = readdir(d)) != NULL) {
+    printf("%s\n", file->d_name);
+  }
+  closedir(d);
 }
 
 void RemoveDirectory(char* path){
@@ -73,12 +71,10 @@ void CreateSymbolLink(char* path){
 
 void PrintSymbolLinkSelf(char* path){
   char buf[4096];
-  int len;
-  if((len = readlink(path, buf, sizeof(buf)-1)) != 1){
-    buf[len] = '\0';
-    printf("%s\n", buf);
-  }
-  else PrintErrnoAndExit();
+  int len = readlink(path, buf, sizeof(buf)-1);
+  if(len == -1)  PrintErrnoAndExit();
+  buf[len] = '\0';
+  printf("%s\n", buf);
 }
 
 void PrintSymbolLinkFile(char* path){
@@ -112,7 +108,8 @@ void ChangeAccess(char* path){
 
 int main(int argc, char** argv){
   if(argc < 2){
-    PrintAndExit("not enough args");
+    printf("not enough args");
+    return 1;
   }
   MapEntry funcs[] = {{"MakeDirectory", MakeDirectory},
                       {"ShowDirectory", ShowDirectory},
@@ -135,6 +132,6 @@ int main(int argc, char** argv){
       return 0;
     }
   }
-  perror("no function matched");
+  printf("no function matched");
   return 1;
 }
