@@ -29,13 +29,13 @@ int main(){
   int ret = sendto(sockfd, msg, strlen(msg), 0, (struct sockaddr*)&server, sizeof(server));
   if(ret < 0){
     if(close(sockfd) == -1) HandleError("close socket error");
-    HandleError("cant set IP address");
+    HandleError("cant send msg");
   }
   char input[BUFFER_SIZE];
   ret = recvfrom(sockfd, input, BUFFER_SIZE, 0, NULL, NULL);
   if(ret < 0){
     if(close(sockfd) == -1) HandleError("close socket error");
-    HandleError("cant set IP address");
+    HandleError("cant recieve msg");
   }
   printf("Recieved %s\n", input);
   if(close(sockfd) == -1) HandleError("close socket error");
