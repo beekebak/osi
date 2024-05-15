@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <assert.h>
 #include <sys/types.h>
 
 typedef struct List{
@@ -31,8 +32,7 @@ void* Mylloc(int size){
     }
     iter = iter->next;
   }
-  perror("no more memory");
-  exit(1);
+  return NULL;
 }
 
 void Mfree(void* ptr){
@@ -67,14 +67,17 @@ int main(){
   tail->prev = head;
   head->size = 0;
   tail->size = 0;
-  /*sleep(5);
+  sleep(5);
   void* reg = Mylloc(100);
   sleep(5);
   void* reg2 = Mylloc(1000);
   sleep(5);
   Mfree(reg);
   void* reg3 = Mylloc(20);
-  void* reg4 = Mylloc(25);*/ //test
+  void* reg4 = Mylloc(25);
+  void* reg5 = Mylloc(5000);
+  assert(reg5 == NULL);
+  //test
   if(munmap(heap, 1024*4) == -1) perror("munmap");
   if(close(fd) == -1) perror("close");
   return 0;
