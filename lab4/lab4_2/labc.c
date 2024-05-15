@@ -65,7 +65,7 @@ void FuncWithMMAP(){
 }
 
 void SignalHandler(int signal){
-  printf("got signal\n");
+  write(1, "got signal\n", 11);
 }
 
 int main(int argc, char** argv){
