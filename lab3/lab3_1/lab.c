@@ -54,6 +54,7 @@ int CopyReverseFile(char* src, char* dest){
   FILE* f_dest = fopen(dest, "w");
   if(f_src == NULL || f_dest == NULL){
     perror("Cant open files");
+    printf("%s\n%s\n", src, dest);
     return 1;
   }
   ReverseAndCopy(f_src, f_dest);
@@ -75,10 +76,17 @@ int CopyDir(char* src, char* dest){
   }
   while ((entry = readdir(dp)) != NULL) {
     if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-    snprintf(src_path, sizeof(src_path), "%s/%s", src, entry->d_name);
+    int res = snprintf(src_path, sizeof(src_path), "%s/%s", src, entry->d_name);
+    if(res < 0 || res == sizeof(src_path)){
+      return 1;
+    }
     char* reversed_entry_name = GetReverseString(entry->d_name);
     if(reversed_entry_name == NULL) return 1;
-    snprintf(dest_path, sizeof(dest_path), "%s/%s", dest, reversed_entry_name);
+    res = snprintf(dest_path, sizeof(dest_path), "%s/%s", dest, reversed_entry_name);
+    if(res < 0 || res == sizeof(src_path)){
+      free(reversed_entry_name);
+      return 1;
+    }
     if (lstat(src_path, &statbuf) == -1) {
       free(reversed_entry_name);
       continue;
@@ -89,17 +97,29 @@ int CopyDir(char* src, char* dest){
         return 1;
       }
     }
+    else if(S_ISDIR(statbuf.st_mode)){
+      if(mkdir(dest_path, 0755) == -1){
+        free(reversed_entry_name);
+        perror("cant make inner dir");
+        return 1;
+      }
+      if(CopyDir(src_path, dest_path) == 1){
+        free(reversed_entry_name);
+        return 1;
+      }
+    }
     free(reversed_entry_name);
   }
   if(closedir(dp) == -1){
-    perror(strerror(errno));
+    perror("close directory error");
   }
   return 0;
 }
 
 int main(int argc, char** argv){
   if(argc != 2){
-    PrintAndExit("wrong arguments count");
+    printf("wrong arguments count\n");
+    exit(1);
   }
   char* in_dir_name = strrchr(argv[1], '/');
   in_dir_name = in_dir_name ? in_dir_name + 1 : argv[1];
@@ -108,9 +128,15 @@ int main(int argc, char** argv){
     return 1;
   }
   char out_path[buff_size];
-  snprintf(out_path, buff_size, "./%s", out_dir_name);
-  if(mkdir(out_dir_name, 0755) == -1) PrintErrnoAndExit();
-
+  int ret = snprintf(out_path, buff_size, "./%s", out_dir_name);
+  if(ret < 0 || ret >= buff_size){
+    free(out_dir_name);
+    return 1;
+  }
+  if(mkdir(out_dir_name, 0755) == -1){
+    free(out_dir_name);
+    PrintErrnoAndExit();
+  }
   int res = CopyDir(argv[1], out_path);
 
   free(out_dir_name);
