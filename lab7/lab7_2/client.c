@@ -41,6 +41,7 @@ int main(){
       HandleError("cant recieve msg");
     }
     printf("%s\n", msg);
+    sleep(1);
   }
   if(close(sockfd) == -1) HandleError("close socket error");
   return 0;
