@@ -16,6 +16,9 @@
 #define MAX_CLIENTS 20
 
 int sockfd;
+struct pollfd fds[MAX_CLIENTS];
+int nfds = 1;
+
 
 void HandleError(char* message){
   perror(message);
@@ -23,7 +26,9 @@ void HandleError(char* message){
 }
 
 void ExitHandler(int sig){
-  if(close(sockfd) == -1) HandleError("Close fail");
+  for(int i = 0; i < nfds; i++){
+    if(close(fds[i].fd) == -1) perror("Close fail fd signal handler");
+  }
   exit(0);
 }
 
@@ -46,11 +51,9 @@ int main(){
   struct sockaddr_in client;
   socklen_t client_length = sizeof(client);
   int connection_sockfd;
-  struct pollfd fds[MAX_CLIENTS];
   memset(fds, 0, sizeof(fds));
   fds[0].fd = sockfd;
   fds[0].events = POLLIN;
-  int nfds = 1;
   char buffer[BUFFER_SIZE];
   while(1){
     int ret = poll(fds, nfds, -1);
@@ -84,9 +87,16 @@ int main(){
             fds[i].fd = -1;
           }
           else{
+            buffer[ret] = '\0';
             printf("msg from %d: %s", fds[i].fd, buffer);
             if(send(fds[i].fd, buffer, ret, 0) == -1){
               perror("Send error");
+            }
+            if(strcmp("quit", buffer) == 0){
+              for(int i = 0; i < nfds; i++){
+                if(close(fds[i].fd) == -1) perror("Close fail signal handler");
+              }
+              return 0;
             }
           }
         }

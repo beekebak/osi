@@ -30,7 +30,7 @@ int main(){
     HandleError("cant connect");
   }
   for(int i = 0; i < 5; i++){
-    char msg[BUFFER_SIZE] = "hello server\n";
+    char msg[BUFFER_SIZE] = "quit";
     if(send(sockfd, msg, strlen(msg), 0) == -1){
       if(close(sockfd) == -1) HandleError("close socket error");
       HandleError("cant send msg");
