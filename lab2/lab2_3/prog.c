@@ -18,7 +18,7 @@ void PrintErrnoAndExit(){
 }
 
 int main(){
-  int pid = fork();
+  pid_t pid = fork();
   if(pid == -1){
     PrintErrnoAndExit();
   }
@@ -27,18 +27,17 @@ int main(){
     struct user_regs_struct regs;
     while(1){
       if(waitpid(pid, &status, 0) == -1) PrintErrnoAndExit();
-      if (WIFEXITED(status) || WIFSIGNALED(status)) {
+      if (WIFEXITED(status) || WIFSIGNALED(status)){
         break;
       }
       if(ptrace(PTRACE_GETREGS, pid, NULL, &regs) == -1) PrintErrnoAndExit();
-      printf("Системный вызов:%lld\n", regs.orig_rax);
+      printf("Syscall:%lld\n", regs.orig_rax);
       if(ptrace(PTRACE_SYSCALL, pid, NULL, NULL) == -1) PrintErrnoAndExit();
     }
   }
   else{
-    ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-    execl("/bin/ls", "/osi/lab2/lab2_3", NULL);
-    PrintErrnoAndExit();
+    if(ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1) PrintErrnoAndExit();
+    if(execl("/bin/ls", "/osi/lab2/lab2_3", NULL) == -1) PrintErrnoAndExit();
   }
   return 0;
 }
