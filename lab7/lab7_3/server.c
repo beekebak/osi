@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <poll.h>
 #include <signal.h>
@@ -25,6 +26,18 @@ void HandleError(char* message){
   exit(EXIT_FAILURE);
 }
 
+void ChildHandler(int sig){
+  int status;
+  int child_return_code = wait(&status);
+  if(child_return_code == -1) write(2, "Quit checker returned with error\n", 34);
+  if(WIFEXITED(status) != 0) write(2, "Quit checker did not returned successfully\n", 44);
+  else if(WEXITSTATUS(status) != 0) write(2, "Quit checker returned with wrong value\n", 40);
+  for(int i = 0; i < nfds; i++){
+    if(close(fds[i].fd) == -1) write(2, "Close fail fd signal handler", 29);
+  }
+  exit(0);
+}
+
 void ExitHandler(int sig){
   for(int i = 0; i < nfds; i++){
     if(close(fds[i].fd) == -1) perror("Close fail fd signal handler");
@@ -34,6 +47,15 @@ void ExitHandler(int sig){
 
 int main(){
   signal(SIGINT, ExitHandler);
+  signal(SIGCHLD, ExitHandler);
+  int pid = fork();
+  if(pid == 0){
+    char exit_msg[4096];
+    while(1){
+      scanf("%s", exit_msg);
+      if(strcmp(exit_msg, "quit") == 0) return 1;
+    }
+  }
   struct sockaddr_in server;
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if(sockfd == -1) HandleError("Couldnt create socket");
@@ -83,7 +105,7 @@ int main(){
             continue;
           }
           else if(ret == 0){
-            if(close(fds[i].fd) == -1) perror("close fail");
+            if(close(fds[i].fd) == -1) perror("Close fail");
             fds[i].fd = -1;
           }
           else{
@@ -91,12 +113,6 @@ int main(){
             printf("msg from %d: %s", fds[i].fd, buffer);
             if(send(fds[i].fd, buffer, ret, 0) == -1){
               perror("Send error");
-            }
-            if(strcmp("quit", buffer) == 0){
-              for(int i = 0; i < nfds; i++){
-                if(close(fds[i].fd) == -1) perror("Close fail signal handler");
-              }
-              return 0;
             }
           }
         }
